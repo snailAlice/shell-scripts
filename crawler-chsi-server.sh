@@ -1,21 +1,19 @@
 #!/bin/bash
 #Desc: Script to restart, release or roll service
-#Author: wangxiangyang
-#create by 2017-12-08
 
 #==========================================================
 #Functions
 #==========================================================
 function printUsage() {
-  echo "usage: $0 [start|stop|restart]"
+  echo "usage: crawler-chsi-server.sh [start|stop|restart]"
 }
 
 
 function restartService() {
-#重启脚本
 cd /var/consul/services/
 sudo grep -l crawler-chsi * |xargs sudo rm -f
 /usr/local/bin/consul reload
+sleep 20
 cd /app/services/
 pid=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
 if [ "$pid" = "" ] ; then
@@ -23,20 +21,22 @@ if [ "$pid" = "" ] ; then
 else
     kill -9 $pid
 fi
-echo start crawler-chsi-server-1.0-SNAPSHOT.jar
 sleep 3
-nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+mv crawler-chsi-server-1.0-SNAPSHOT.jar /app/bak/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d)
+sleep 3
+mv /app/pre/crawler-chsi-server-1.0-SNAPSHOT.jar crawler-chsi-server-1.0-SNAPSHOT.jar
 
-echo `ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar|grep -v grep`
+echo start crawler-chsi-server-1.0-SNAPSHOT.jar
+sleep 2
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+echo 
 sleep 10
 pid2=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
 if [ "$pid2" = "" ] ; then
-    nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
 else
-    echo "succeed!"
+    echo "crawler-chsi-server-1.0-SNAPSHOT.jar is succeed!"
 fi
-
-	
 }
 
 function releaseService() {
@@ -44,6 +44,7 @@ function releaseService() {
 cd /var/consul/services/
 sudo grep -l crawler-chsi * |xargs sudo rm -f
 /usr/local/bin/consul reload
+sleep 20
 cd /app/services/
 pid=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
 if [ "$pid" = "" ] ; then
@@ -51,23 +52,21 @@ if [ "$pid" = "" ] ; then
 else
     kill -9 $pid
 fi
-sleep 2
-mv crawler-chsi-server-1.0-SNAPSHOT.jar /app/bak/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d)
-sleep 2
-mv /app/pre/crawler-chsi-server-1.0-SNAPSHOT.jar crawler-chsi-server-1.0-SNAPSHOT.jar
-echo start crawler-chsi-server-1.0-SNAPSHOT.jar
 sleep 3
-nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+mv crawler-chsi-server-1.0-SNAPSHOT.jar /app/bak/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d)
+sleep 3
+mv /app/pre/crawler-chsi-server-1.0-SNAPSHOT.jar crawler-chsi-server-1.0-SNAPSHOT.jar
 
-echo `ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar|grep -v grep`
+echo start crawler-chsi-server-1.0-SNAPSHOT.jar
+sleep 2
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
 sleep 10
 pid2=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
 if [ "$pid2" = "" ] ; then
-    nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
 else
-    echo "succeed!"
+    echo "crawler-chsi-server-1.0-SNAPSHOT.jar is succeed!"
 fi
-	
 }
 
 function rollService() {
@@ -75,6 +74,7 @@ function rollService() {
 cd /var/consul/services/
 sudo grep -l crawler-chsi * |xargs sudo rm -f
 /usr/local/bin/consul reload
+sleep 20
 cd /app/services/
 pid=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
 if [ "$pid" = "" ] ; then
@@ -82,23 +82,21 @@ if [ "$pid" = "" ] ; then
 else
     kill -9 $pid
 fi
-sleep 2
-mv crawler-chsi-server-1.0-SNAPSHOT.jar /app/roll/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d)
-sleep 2
-mv /app/bak/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d) crawler-chsi-server-1.0-SNAPSHOT.jar
-echo start crawler-chsi-server-1.0-SNAPSHOT.jar
 sleep 3
-nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+mv crawler-chsi-server-1.0-SNAPSHOT.jar /app/roll/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d)
+sleep 3
+mv /app/bak/crawler-chsi-server-1.0-SNAPSHOT.jar_$(date +%Y%m%d) crawler-chsi-server-1.0-SNAPSHOT.jar
 
-echo `ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar|grep -v grep`
+echo start crawler-chsi-server-1.0-SNAPSHOT.jar
+sleep 2
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
 sleep 10
-pid2=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}'`
+pid2=`ps -ef|grep crawler-chsi-server-1.0-SNAPSHOT.jar |grep -v grep|awk '{print $2}' `
 if [ "$pid2" = "" ] ; then
-    nohup /usr/local/bin/java -jar -Dserver.port=8023 -Dservice.tag=prod crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
+nohup /usr/local/bin/java -Dservice.tag=qa -Dserver.port=8023 -jar crawler-chsi-server-1.0-SNAPSHOT.jar > /dev/null 2>&1 &
 else
-    echo "succeed!"
+    echo "crawler-chsi-server-1.0-SNAPSHOT.jar is succeed!"
 fi
-	
 }
 
 #================================================
@@ -127,3 +125,4 @@ else
             ;;
     esac
 fi
+

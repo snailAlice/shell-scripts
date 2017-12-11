@@ -12,19 +12,18 @@ echo "Input consul tag:"
 read tag
 echo "The consul tag you input is: $tag"
 csul=`echo $jar |awk -F '-server' '{ print $1 }'`
+echo "ps -ef|grep $jar |grep -v grep|awk '{print \$2}'" >p
 
 (
 cat <<EOF
 #!/bin/bash
 #Desc: Script to restart, release or roll service
-#Author: wangxiangyang
-#create by 2017-12-08
 
 #==========================================================
 #Functions
 #==========================================================
 function printUsage() {
-  echo "usage: $0 [start|stop|restart]"
+  echo "usage: ${csul}-server.sh [start|stop|restart]"
 }
 
 
@@ -34,11 +33,11 @@ sudo grep -l $csul * |xargs sudo rm -f
 /usr/local/bin/consul reload
 sleep 20
 cd /app/services/
-pid=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid" = "" ] ; then
+pid=\`$(cat p)\`
+if [ "\$pid" = "" ] ; then
     echo "$jar is shutdown now!"
 else
-    kill -9 $pid
+    kill -9 \$pid
 fi
 sleep 3
 mv $jar /app/bak/${jar}_\$(date +%Y%m%d)
@@ -50,8 +49,8 @@ sleep 2
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 echo `ps -ef|grep $jar|grep -v grep`
 sleep 10
-pid2=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid2" = "" ] ; then
+pid2=\`$(cat p)\`
+if [ "\$pid2" = "" ] ; then
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 else
     echo "$jar is succeed!"
@@ -65,11 +64,11 @@ sudo grep -l $csul * |xargs sudo rm -f
 /usr/local/bin/consul reload
 sleep 20
 cd /app/services/
-pid=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid" = "" ] ; then
+pid=\`$(cat p)\`
+if [ "\$pid" = "" ] ; then
     echo "$jar is shutdown now!"
 else
-    kill -9 $pid
+    kill -9 \$pid
 fi
 sleep 3
 mv $jar /app/bak/${jar}_\$(date +%Y%m%d)
@@ -80,8 +79,8 @@ echo start $jar
 sleep 2
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 sleep 10
-pid2=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid2" = "" ] ; then
+pid2=\`$(cat p)\`
+if [ "\$pid2" = "" ] ; then
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 else
     echo "$jar is succeed!"
@@ -95,11 +94,11 @@ sudo grep -l $csul * |xargs sudo rm -f
 /usr/local/bin/consul reload
 sleep 20
 cd /app/services/
-pid=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid" = "" ] ; then
+pid=\`$(cat p)\`
+if [ "\$pid" = "" ] ; then
     echo "$jar is shutdown now!"
 else
-    kill -9 $pid
+    kill -9 \$pid
 fi
 sleep 3
 mv $jar /app/roll/${jar}_\$(date +%Y%m%d)
@@ -110,8 +109,8 @@ echo start $jar
 sleep 2
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 sleep 10
-pid2=`ps -ef|grep $jar |grep -v grep|awk '{print $2}'`
-if [ "$pid2" = "" ] ; then
+pid2=\`$(cat p) \`
+if [ "\$pid2" = "" ] ; then
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 else
     echo "$jar is succeed!"
@@ -121,10 +120,10 @@ fi
 #================================================
 # Service restart, release and roll
 #================================================
-if [[ $# -eq 0 ]]; then
+if [[ \$# -eq 0 ]]; then
     restartService
 else
-    case "$1" in
+    case "\$1" in
         restart)
             restartService
             ;;
