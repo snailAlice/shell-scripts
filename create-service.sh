@@ -28,6 +28,7 @@ function printUsage() {
 
 
 function restartService() {
+#重启脚本
 cd /var/consul/services/
 sudo grep -l $csul * |xargs sudo rm -f
 /usr/local/bin/consul reload
@@ -40,10 +41,6 @@ else
     kill -9 \$pid
 fi
 sleep 3
-mv $jar /app/bak/${jar}_\$(date +%Y%m%d)
-sleep 3
-mv /app/pre/${jar} $jar
-
 echo start $jar
 sleep 2
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
