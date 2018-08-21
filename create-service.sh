@@ -50,7 +50,7 @@ pid2=\`$(cat p)\`
 if [ "\$pid2" = "" ] ; then
 nohup /usr/local/bin/java -Dservice.tag=$tag -Dserver.port=$port -jar $jar > /dev/null 2>&1 &
 else
-    echo "$jar is succeed!"
+    echo "$jar is succeed! test20180821"
 fi
 }
 
